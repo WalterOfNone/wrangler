@@ -1,7 +1,7 @@
 {
   "name": "Wrangler",
   "description": "Wordle Solver",
-  "version": "0.2",
+  "version": "0.3",
   "manifest_version": 3,
   "permissions": ["storage", "activeTab", "scripting"],
   "background": {
