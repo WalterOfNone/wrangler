@@ -64,7 +64,7 @@ function guess( word ) {
 function removeNotNeeded() {
     var wordIndex = backend.rowIndex - 1;
     //temporary fix for douuble letters
-    if (notdouble(possibleSolutions[wordIndex])){
+   // if (notdouble(possibleSolutions[wordIndex])){
         for (var charIndex = 0; charIndex < 6; charIndex++){
             switch(backend.evaluations[wordIndex][charIndex]) {
             case 'absent':
@@ -81,7 +81,7 @@ function removeNotNeeded() {
                 break;
             }
         }
-    }
+    //}
 }
 
 function notdouble( word ){
