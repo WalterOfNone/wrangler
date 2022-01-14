@@ -1,5 +1,7 @@
 //TODO: 
-//add abililty to optimally solve
+//Add abililty to optimally solve (optimal guess perhaps = guess w/most letters that are in remaining solutions list)
+//Fix doubles handling: https://i.imgur.com/xJlAOAd.png (done?)
+//Decrease solve time
 
 //directly interacts with DOM
 const backend = document.querySelector("GAME-APP")
@@ -33,6 +35,7 @@ startbutton.addEventListener("click", async () => {
 
 var wins = 0;
 var guesses = 0;
+var borked = [""];
 
 function solve() {
     for (var run = 0; run < 6; run++){
@@ -43,7 +46,7 @@ function solve() {
             guess("roate");
         } else {
             //change this later to guess the optimal solve
-            guess(possibleSolutions[0]);
+            guess(optimalGuess());
         }
         removeNotNeeded();
         if (backend.gameStatus == "WIN"){
@@ -53,6 +56,42 @@ function solve() {
             break;
         }
     }
+    if (backend.gameStatus == "FAIL"){
+        borked.push(backend.solution);
+    }
+}
+
+function optimalGuess(){
+    var letterArray = [["a", 0],["b", 0],["c", 0],["d", 0],["e", 0],["f", 0],["g", 0],["h", 0],["i", 0],["j", 0],["k", 0],["l", 0],["m", 0],["n", 0],["o", 0],["p", 0],["q", 0],["r", 0],["s", 0],["t", 0],["u", 0],["v", 0],["w", 0],["x", 0],["y", 0],["z", 0]]
+    for (solutionIndex = 0; solutionIndex < possibleSolutions.length; solutionIndex++){
+        for (letterIndex = 0; letterIndex < letterArray.length; letterIndex++){
+            if (possibleSolutions[solutionIndex].includes(letterArray[letterIndex][0])){
+                letterArray[letterIndex][1]++;
+            }
+        }
+    }
+    //console.log(letterArray);
+    var highestNum = 0;
+    var highestIndex = 0;
+    for (solutionIndex = 0; solutionIndex < possibleSolutions.length; solutionIndex++){
+        var num = 0;
+        //iterates through each letter in the solution word
+        for (letterIndex = 0; letterIndex < 5; letterIndex++){
+            //iterates through each letter in the alphabet array
+            for (letterIndexArray = 0; letterIndexArray < letterArray.length; letterIndexArray++){
+                if (letterArray[letterIndexArray][0] == possibleSolutions[solutionIndex][letterIndex]) {
+                    num += letterArray[letterIndexArray][1];
+                }
+            }
+        }
+        //console.log(num);
+        if (num > highestNum) {
+            highestNum = num;
+            highestIndex = solutionIndex;
+        }
+    }
+    //console.log(highestNum);
+    return possibleSolutions[highestIndex];
 }
 
 function guess( word ) {
@@ -74,6 +113,9 @@ function removeNotNeeded() {
                 if (!permaLetters.includes(backend.boardState[wordIndex][charIndex])) {
                     cull(backend.boardState[wordIndex][charIndex], 'delete');
                     //console.log(backend.boardState[wordIndex][charIndex] + " was culled (delete)");
+                } else {
+                    cull(backend.boardState[wordIndex][charIndex], 'difference', charIndex)
+                    //console.log(backend.boardState[wordIndex][charIndex] + " was culled (difference special case)")
                 }
                 break;
             case 'present':
@@ -103,19 +145,6 @@ function doubleFix(){
                 }
         }
     }
-}
-
-function notdouble( word ){
-    var letters = [""]
-    for (var wordIndex = 0; wordIndex < word.length; wordIndex++){
-        var currentLetter = word[wordIndex]
-        if (letters.includes(currentLetter)){
-            return false
-        } else {
-            letters.push(currentLetter);
-        }
-    }
-    return true;
 }
 
 function cull(letter, mode, position) {
@@ -185,7 +214,7 @@ function testrun() {
         backend.gameStatus = 'IN_PROGRESS'
         backend.canInput = true
         backend.solution = possibleSolutionsOG[solutionIndex]
-        //console.log("solving for: " + possibleSolutionsOG[solutionIndex] + " at index " + solutionIndex)
+        console.log("solving for: " + possibleSolutionsOG[solutionIndex] + " at index " + solutionIndex)
         solve();
     }
     var endTime = performance.now()
