@@ -1,15 +1,14 @@
-// Initialize button with user's preferred color
-let showSolution = document.getElementById("showSolution")
+let goButton = document.getElementById("goButton");
 
-showSolution.addEventListener("click", async () => {
+goButton.addEventListener("click", async () => {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        function: showSolution,
+        function: testrun,
       });
 });
 
-function showSolution() {
-    document
+function testrun() {
+    console.log("You hit the run button")
 }
